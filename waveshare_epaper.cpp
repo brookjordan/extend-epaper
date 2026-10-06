@@ -6565,5 +6565,102 @@ static const uint8_t PARTIAL_UPD_2IN9_LUT[PARTIAL_UPD_2IN9_LUT_SIZE] =
       LOG_UPDATE_INTERVAL(this);
     }
 
+    void MHEP0213F51::initialize()
+    {
+      this->reset_();
+      this->wait_until_idle_();
+
+      this->command(0x4D);
+      this->data(0x78);
+
+      this->command(0x00); // PSR
+      this->data(0x0F);
+      this->data(0x29);
+
+      this->command(0x01); // PWRR
+      this->data(0x07);
+      this->data(0x00);
+
+      this->command(0x03); // POFS
+      this->data(0x10);
+      this->data(0x54);
+      this->data(0x44);
+
+      this->command(0x06); // BTST
+      this->data(0x05);
+      this->data(0x00);
+      this->data(0x3F);
+      this->data(0x0A);
+      this->data(0x25);
+      this->data(0x12);
+      this->data(0x1A);
+
+      this->command(0x50); // CDI
+      this->data(0x37);
+
+      this->command(0x60); // TCON
+      this->data(0x02);
+      this->data(0x02);
+
+      this->command(0x61); // TRES
+      this->data(0x00);
+      this->data(0x80); // 128 px
+      this->data(0x00);
+      this->data(0xFA); // 250 px
+
+      this->command(0xE7);
+      this->data(0x1C);
+
+      this->command(0xE3);
+      this->data(0x22);
+
+      this->command(0xB4);
+      this->data(0xD0);
+
+      this->command(0xB5);
+      this->data(0x03);
+
+      this->command(0xE9);
+      this->data(0x01);
+
+      this->command(0x30);
+      this->data(0x08);
+
+      this->command(0x04); // Power ON
+      this->wait_until_idle_();
+    }
+    void HOT MHEP0213F51::display()
+    {
+      this->command(0x24); // Write to black pixel RAM
+      this->start_data_();
+      this->write_array(this->buffer_, this->get_buffer_length_());
+      this->end_data_();
+
+      this->command(0x22); // Display Update Control
+      this->data(0xC7);    // Enable clock, CP, and display update
+      this->command(0x20); // Master activation
+      this->wait_until_idle_();
+    }
+    void MHEP0213F51::dump_config()
+    {
+      ESP_LOGCONFIG("brook", "MHEP0213F51 E-Paper Display");
+      LOG_PIN("  CS Pin: ", this->cs_);
+      LOG_PIN("  DC Pin: ", this->dc_pin_);
+      LOG_PIN("  Reset Pin: ", this->reset_pin_);
+      LOG_PIN("  Busy Pin: ", this->busy_pin_);
+      LOG_DISPLAY("", "MH ET Paper", this);
+    }
+    void MHEP0213F51::deep_sleep()
+    {
+      this->command(0x10);
+      this->data(0x01);
+    }
+    int MHEP0213F51::get_width_internal() { return 122; }
+    int MHEP0213F51::get_height_internal() { return 250; }
+    void MHEP0213F51::set_full_update_every(uint32_t full_update_every)
+    {
+      this->full_update_every_ = full_update_every;
+    }
+
   } // namespace waveshare_epaper
 } // namespace esphome

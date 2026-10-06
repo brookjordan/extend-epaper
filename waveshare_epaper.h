@@ -196,6 +196,7 @@ namespace esphome
       WAVESHARE_EPAPER_7_5_INV2,
       WAVESHARE_EPAPER_7_5_IN_B_V2,
       WAVESHARE_EPAPER_13_3_IN_K,
+      MH_EP_02_13_F51,
     };
 
     class WaveshareEPaper1P54InBV2 : public WaveshareEPaperBWR
@@ -1181,6 +1182,29 @@ namespace esphome
       int get_height_internal() override;
 
       uint32_t idle_timeout_() override;
+    };
+
+    class WaveshareEPaperMHEP0213F51 : public WaveshareEPaperBWR
+    {
+    public:
+      void setup() override;
+      void display() override;
+      void write_lut_();
+    };
+
+    class MHEP0213F51 : public WaveshareEPaperBWR
+    {
+    public:
+      void initialize() override;
+      void display() override;
+      void dump_config() override;
+      void deep_sleep() override;
+      void set_full_update_every(uint32_t full_update_every);
+
+    protected:
+      int get_width_internal() override;
+      int get_height_internal() override;
+      uint32_t full_update_every_{30};
     };
 
   } // namespace waveshare_epaper
